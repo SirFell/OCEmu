@@ -17,18 +17,19 @@ echo "Building OCEmu dependencies for $MACHINE_TYPE"
 pacman --needed --noconfirm -S mingw-w64-${MACHINE_TYPE}-toolchain winpty patch make git subversion mingw-w64-${MACHINE_TYPE}-SDL2
 mkdir mingw-w64-lua
 cd mingw-w64-lua
-curl -L https://github.com/Alexpux/MINGW-packages/raw/541d0da31a4d2e648689655e49ddfffbe7ff5dfe/mingw-w64-lua/PKGBUILD -o PKGBUILD
-curl -L https://github.com/Alexpux/MINGW-packages/raw/541d0da31a4d2e648689655e49ddfffbe7ff5dfe/mingw-w64-lua/implib.patch -o implib.patch
-curl -L https://github.com/Alexpux/MINGW-packages/raw/541d0da31a4d2e648689655e49ddfffbe7ff5dfe/mingw-w64-lua/lua.pc -o lua.pc
-curl -L https://github.com/Alexpux/MINGW-packages/raw/541d0da31a4d2e648689655e49ddfffbe7ff5dfe/mingw-w64-lua/searchpath.patch -o searchpath.patch
+curl -L https://github.com/Alexpux/MINGW-packages/raw/4e421bbc366b833e75aee092d4033cff3ed07c12/mingw-w64-lua/PKGBUILD -o PKGBUILD
+curl -L https://github.com/Alexpux/MINGW-packages/raw/4e421bbc366b833e75aee092d4033cff3ed07c12/mingw-w64-lua/implib.patch -o implib.patch
+curl -L https://github.com/Alexpux/MINGW-packages/raw/4e421bbc366b833e75aee092d4033cff3ed07c12/mingw-w64-lua/LICENSE -o LICENSE
+curl -L https://github.com/Alexpux/MINGW-packages/raw/4e421bbc366b833e75aee092d4033cff3ed07c12/mingw-w64-lua/lua.pc -o lua.pc
+curl -L https://github.com/Alexpux/MINGW-packages/raw/4e421bbc366b833e75aee092d4033cff3ed07c12/mingw-w64-lua/searchpath.patch -o searchpath.patch
 makepkg-mingw
-if [ ! -e mingw-w64-${MACHINE_TYPE}-lua-5.2.4-1-any.pkg.tar.zst ]; then
+if [ ! -e mingw-w64-${MACHINE_TYPE}-lua-5.3.5-1-any.pkg.tar.zst ]; then
 	echo "Failed to build lua"
 	exit 1
 fi
-pacman --noconfirm -U mingw-w64-${MACHINE_TYPE}-lua-5.2.4-1-any.pkg.tar.zst
+pacman --noconfirm -U mingw-w64-${MACHINE_TYPE}-lua-5.3.5-1-any.pkg.tar.zst
 cd ..
-rm -r mingw-w64-lua
+rm -rf mingw-w64-lua
 if [ -e src/extras ]; then
 	read -p "src/extras already exists, remove? [y/N] " -n 1 -r
 	echo
@@ -36,7 +37,7 @@ if [ -e src/extras ]; then
 		echo "Not removing existing folder."
 		exit 1
 	fi
-	rm -r src/extras
+	rm -rf src/extras
 fi
 mkdir src/extras
 if [ ! -e src/extras ]; then
@@ -79,7 +80,7 @@ if [ ! -e src/lfs.dll ]; then
 fi
 mv src/lfs.dll ..
 cd ..
-rm -r luafilesystem
+rm -rf luafilesystem
 git clone -b 0.1.1 --depth=1 https://github.com/starwing/luautf8.git
 if [ ! -e luautf8 ]; then
 	echo "Failed to download luautf8"
@@ -94,7 +95,7 @@ if [ ! -e lua-utf8.dll ]; then
 fi
 mv lua-utf8.dll ..
 cd ..
-rm -r luautf8
+rm -rf luautf8
 git clone --depth=1 https://github.com/gamax92/luaffifb.git
 if [ ! -e luaffifb ]; then
 	echo "Failed to download luaffifb"
@@ -105,8 +106,8 @@ cat << 'EOF' > luaffifb_mingw.patch
 --- Makefile-old	2015-06-27 10:41:00.288971000 -0600
 +++ Makefile.mingw	2015-06-27 10:41:18.062998000 -0600
 @@ -6,2 +6,3 @@
--LUA_CFLAGS=`$(PKG_CONFIG) --cflags lua5.2 2>/dev/null || $(PKG_CONFIG) --cflags lua`
--SOCFLAGS=`$(PKG_CONFIG) --libs lua5.2 2>/dev/null || $(PKG_CONFIG) --libs lua`
+-LUA_CFLAGS=`$(PKG_CONFIG) --cflags lua5.3 2>/dev/null || $(PKG_CONFIG) --cflags lua`
+-SOCFLAGS=`$(PKG_CONFIG) --libs lua5.3 2>/dev/null || $(PKG_CONFIG) --libs lua`
 +LUA_CFLAGS=
 +SOCFLAGS=-llua
 +CC=gcc
@@ -119,8 +120,8 @@ if [ ! -e ffi.dll ]; then
 fi
 mv ffi.dll ..
 cd ..
-rm -r luaffifb
-git clone -b v3.0-rc1 --depth=1 https://github.com/diegonehab/luasocket.git
+rm -rf luaffifb
+git clone --depth=1 https://github.com/SirFell/luasocket.git
 
 if [ ! -e luasocket ]; then
 	echo "Failed to download luasocket"
@@ -150,7 +151,7 @@ if [ ! -e src/mime.dll.1.0.3 ]; then
 fi
 prefix=../.. PLAT=mingw CDIR_mingw= LDIR_mingw= make install
 cd ..
-rm -r luasocket
+rm -rf luasocket
 git clone -b master https://github.com/brunoos/luasec.git
 if [ ! -e luasec ]; then
 	echo "Failed to download luasec"
@@ -183,13 +184,13 @@ if [ ! -e src/ssl.dll ]; then
 fi
 DESTDIR=../.. LUAPATH= LUACPATH= make install
 cd ..
-rm -r luasec
+rm -rf luasec
 cd ..
 echo "Built dependencies!"
 gcc -s -o OCEmu.exe winstub.c -Wl,--subsystem,windows -mwindows -llua
 case "$MACHINE_TYPE" in
 i686)
-	cp /mingw32/bin/lua52.dll .
+	cp /mingw32/bin/lua53.dll .
 	cp /mingw32/bin/libgcc_s_dw2-1.dll .
 	cp /mingw32/bin/libwinpthread-1.dll .
 	cp /mingw32/bin/libeay32.dll .
@@ -197,7 +198,7 @@ i686)
 	cp /mingw32/bin/SDL2.dll .
 	;;
 x86_64)
-	cp /mingw64/bin/lua52.dll .
+	cp /mingw64/bin/lua53.dll .
 	cp /mingw64/bin/libgcc_s_seh-1.dll .
 	cp /mingw64/bin/libwinpthread-1.dll .
 	cp /mingw64/bin/libeay32.dll .
