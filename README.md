@@ -13,7 +13,7 @@ This git repository contains submodules, please clone using `git clone --recursi
 ### Windows
 
 Old Binaries: [Windows 32bit](https://gamax92.keybase.pub/ocemu/OCEmu-x32.zip) and [Windows 64bit](https://gamax92.keybase.pub/ocemu/OCEmu-x64.zip) [(Build Date)](https://gamax92.keybase.pub/ocemu/builddate.txt)  
-Binaries of the fork: *TODO*
+Binaries of the fork: [Releases](https://github.com/SirFell/OCEmu/releases/latest)
 
 The binaries above have everything pre compiled and packed up for ease of use.
 
